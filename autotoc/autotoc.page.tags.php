@@ -18,11 +18,12 @@ foreach($elems as $level => $elem)
 {
 	$elem = trim($elem);
 	$headings = array();
-	preg_match_all('/<'.$elem.'\>(.*?)<\/'.$elem.'>/', $text, $headings, PREG_OFFSET_CAPTURE);
+	preg_match_all("`<$elem>(.*?)</$elem>`is", $text, $headings, PREG_OFFSET_CAPTURE);
 	$headings = $headings[1];
+	if (!$headings) continue;
 	foreach($headings as $heading)
 	{
-		$title = htmlentities(strip_tags($heading[0]));
+		$title = $heading[0];
 		$chapters[$heading[1]] = array($title, $level);
 		$chapters_elem[$title] = $elem;
 	}
@@ -55,14 +56,15 @@ function buildTOC(&$text, $chapters, $parents = '')
 	global $chapters_elem;
 	$i=0;
 	$toc = '<ol style="list-style:none;">';
-	foreach($chapters as $chapter => $subchapters)
+	foreach($chapters as $chapter_raw => $subchapters)
 	{
+		$chapter = strip_tags(trim($chapter_raw));
 		$i++;
-		$elem = $chapters_elem[$chapter];
+		$elem = $chapters_elem[$chapter_raw];
 		$level = $parents.$i;
-		$url = $_SERVER["REQUEST_URI"] . '#ch' . $level;
+		$url = $_SERVER["REQUEST_URI"] . "#ch$level";
 		$toc .= "<li><a href=\"$url\" title=\"$chapter\">$level. $chapter</a>";
-		$text = str_replace("<$elem>$chapter</$elem>", "<a name=\"ch$level\"></a><$elem>$level. $chapter</$elem>", $text);
+		$text = str_replace("<$elem>$chapter_raw</$elem>", "<a name=\"ch$level\"></a><$elem>$level. $chapter</$elem>", $text);
 		if (count($subchapters) > 0)
 		{
 			$toc .= buildTOC(&$text, $subchapters, $level.'.');
