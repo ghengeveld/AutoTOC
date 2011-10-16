@@ -67,7 +67,7 @@ function buildTOC(&$text, $chapters, $parents = '')
 		$text = str_replace("<$elem>$chapter_raw</$elem>", "<a name=\"ch$level\"></a><$elem>$level. $chapter</$elem>", $text);
 		if (count($subchapters) > 0)
 		{
-			$toc .= buildTOC(&$text, $subchapters, $level.'.');
+			$toc .= buildTOC($text, $subchapters, $level.'.');
 		}
 		$toc .= '</li>';
 	}
